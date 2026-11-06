@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; style-src 'self'; script-src 'self';">
+  <title>NutritionPlan</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="renderer.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon">🥗</span>
+      <div><strong>NutritionPlan</strong><small>Food and nutrition made simple</small></div>
+    </div>
+    <nav class="main-nav" aria-label="Main navigation">
+      <button class="nav-button active" type="button" data-page="explorer">Food Search</button>
+      <button class="nav-button" type="button" data-page="tracker">Food Diary <span id="navCount" class="nav-count">0</span></button>
+    </nav>
+    <div class="api-status"><span id="statusDot" class="status-dot"></span><span id="statusText">Ready</span></div>
+  </header>
+
+  <main class="app-main">
+    <section id="page-explorer" class="page active" aria-labelledby="explorerTitle">
+      <div class="page-heading">
+        <div>
+          <h1 id="explorerTitle">Find a food</h1>
+          <p>Search for food, check the nutrition, and calculate your portion.</p>
+        </div>
+      </div>
+
+      <section class="panel search-panel">
+        <form id="searchForm" class="search-form">
+          <div class="field search-field">
+            <label for="searchInput">Food name</label>
+            <input id="searchInput" type="search" placeholder="Try oats, apple, or chicken" minlength="2" maxlength="80" required>
+          </div>
+          <div class="field diet-field">
+            <label for="dietSelect">Food focus</label>
+            <select id="dietSelect">
+              <option value="balanced">Balanced</option>
+              <option value="highProtein">Higher protein</option>
+              <option value="lowCalorie">Lower calorie</option>
+              <option value="lowCarb">Lower carb</option>
+              <option value="vegetarian">Vegetarian-friendly</option>
+            </select>
+          </div>
+          <button class="button button-primary search-button" type="submit">Search</button>
+        </form>
+        <p class="helper-text" id="sourceNote">Search checks online nutrition databases and switches to common-food reference values if both are unavailable.</p>
+      </section>
+
+      <section id="calculatorPanel" class="panel calculator-panel hidden">
+        <div class="calculator-title">
+          <div class="selected-image" id="selectedFoodImage">🥗</div>
+          <div><h2 id="selectedFoodName">Selected food</h2><p id="selectedFoodMeta" class="muted">Choose a portion to calculate.</p></div>
+        </div>
+        <div class="portion-control field">
+          <label for="portionInput">Portion size (grams)</label>
+          <div class="portion-input-row">
+            <input id="portionInput" type="number" min="1" max="5000" step="1" value="150">
+            <button id="calculateButton" class="button button-secondary" type="button">Calculate</button>
+          </div>
+        </div>
+        <div class="nutrient-result-grid">
+          <div class="nutrient-result"><span>Calories</span><strong id="portionCalories">--</strong><small>kcal</small></div>
+          <div class="nutrient-result"><span>Protein</span><strong id="portionProtein">--</strong><small>g</small></div>
+          <div class="nutrient-result"><span>Carbs</span><strong id="portionCarbs">--</strong><small>g</small></div>
+          <div class="nutrient-result"><span>Fat</span><strong id="portionFat">--</strong><small>g</small></div>
+        </div>
+        <p id="calculationNote" class="helper-text">These are estimates based on the product data.</p>
+        <div class="button-row">
+          <button id="addSelectedButton" type="button" class="button button-primary">Add to diary</button>
+          <button id="closeCalculator" type="button" class="button button-secondary">Close</button>
+        </div>
+      </section>
+
+      <section class="results-section">
+        <div class="section-heading">
+          <h2>Food results <span id="resultCount" class="count-badge">0</span></h2>
+          <p id="resultsSubtitle" class="muted">Search for something to get started.</p>
+        </div>
+        <div id="resultsState" class="empty-state panel">
+          <div class="empty-icon">🍎</div>
+          <h3>Ready to search?</h3>
+          <p>Choose a food above. You can also try one of these:</p>
+          <div class="quick-searches">
+            <button type="button" class="quick-search" data-search="oats">Oats</button>
+            <button type="button" class="quick-search" data-search="apple">Apple</button>
+            <button type="button" class="quick-search" data-search="chicken breast">Chicken breast</button>
+          </div>
+        </div>
+        <div id="resultsGrid" class="food-grid"></div>
+      </section>
+      <section class="tip-box"><strong id="tipTitle">Quick tip</strong><p id="tipText">Compare the whole nutrition label, not only calories. Nutrition details may be missing or different between brands.</p></section>
+      <p class="disclaimer">For learning and general food planning only. Check the product label if you need accurate values.</p>
+    </section>
+
+    <section id="page-tracker" class="page" aria-labelledby="trackerTitle">
+      <div class="page-heading">
+        <div>
+          <h1 id="trackerTitle">Food diary</h1>
+          <p>Add what you ate and check your totals for today.</p>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card"><span>Calories today</span><strong id="todayCalories">0</strong><small id="calorieGoalText">Example target: 2,000 kcal</small><div class="progress-track"><span id="calorieProgress" class="progress-fill"></span></div></div>
+        <div class="summary-card"><span>Protein</span><strong id="todayProtein">0 g</strong><small>Today's total</small></div>
+        <div class="summary-card"><span>Carbs</span><strong id="todayCarbs">0 g</strong><small>Today's total</small></div>
+        <div class="summary-card"><span>Food entries</span><strong id="todayFoodCount">0</strong><small id="todayLabel">Today</small></div>
+      </div>
+
+      <div class="tracker-layout">
+        <section class="panel intake-form-panel">
+          <div class="section-heading"><h2 id="formTitle">Add food</h2></div>
+          <p class="helper-text">Fill in the nutrition information from your food or product label.</p>
+          <form id="intakeForm" novalidate>
+            <input id="recordId" type="hidden">
+            <div class="field"><label for="foodName">Food name *</label><input id="foodName" name="foodName" maxlength="100" placeholder="e.g. Chicken and rice" required></div>
+            <div class="form-row">
+              <div class="field"><label for="portionGrams">Portion (g) *</label><input id="portionGrams" name="portionGrams" type="number" min="1" max="5000" step="1" placeholder="150" required></div>
+              <div class="field"><label for="logDate">Date *</label><input id="logDate" name="logDate" type="date" required></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label for="inputCalories">Calories (kcal) *</label><input id="inputCalories" name="calories" type="number" min="0" max="20000" step="0.1" placeholder="250" required></div>
+              <div class="field"><label for="inputProtein">Protein (g) *</label><input id="inputProtein" name="protein" type="number" min="0" max="1000" step="0.1" placeholder="20" required></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label for="inputCarbs">Carbs (g) *</label><input id="inputCarbs" name="carbs" type="number" min="0" max="1000" step="0.1" placeholder="30" required></div>
+              <div class="field"><label for="inputFat">Fat (g) *</label><input id="inputFat" name="fat" type="number" min="0" max="1000" step="0.1" placeholder="8" required></div>
+            </div>
+            <div class="field"><label for="recordNote">Note (optional)</label><textarea id="recordNote" name="note" rows="2" maxlength="250" placeholder="Optional note"></textarea></div>
+            <div class="button-row">
+              <button id="saveRecordButton" class="button button-primary" type="submit">Add food</button>
+              <button id="cancelEditButton" class="button button-secondary hidden" type="button">Cancel</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel records-panel">
+          <div class="section-heading records-heading"><h2>Your entries <span id="recordCount" class="count-badge">0</span></h2><button id="clearSearchFilter" type="button" class="button button-secondary small-button">Show all</button></div>
+          <div class="records-toolbar"><p id="recordsSubtitle" class="muted">No entries yet.</p><label class="filter-label" for="recordsDateFilter">Filter date <input id="recordsDateFilter" type="date"></label></div>
+          <div id="intakeList" class="intake-list"></div>
+          <div id="recordsEmpty" class="empty-records"><div class="empty-icon">📝</div><h3>No food added yet</h3><p>Your food entries will show here.</p><button id="exploreFromEmpty" type="button" class="button button-secondary">Search for food</button></div>
+        </section>
+      </div>
+      <p class="disclaimer">Nutrition numbers are estimates. Your actual intake depends on the ingredients and portion size.</p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <footer class="app-footer">NutritionPlan · Student desktop project</footer>
+</body>
+</html>

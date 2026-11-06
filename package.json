@@ -1,0 +1,21 @@
+{
+  "name": "nutritionplan-electron",
+  "version": "1.0.0",
+  "description": "Electron food nutrition app with two online API sources and an offline reference fallback.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "electron",
+    "nutrition",
+    "food",
+    "crud",
+    "oop"
+  ],
+  "author": "Student Project",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "electron": "^45.0.0"
+  }
+}

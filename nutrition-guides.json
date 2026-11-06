@@ -1,0 +1,25 @@
+{
+  "appName": "NutritionPlan",
+  "goals": {
+    "dailyCaloriesKcal": 2000,
+    "note": "The default calorie target is an example only. Users should adjust it to their own needs."
+  },
+  "tips": [
+    {
+      "title": "Check the full picture",
+      "text": "Compare calories with protein, carbohydrates, fat and serving size instead of judging a food by one number."
+    },
+    {
+      "title": "Use a realistic portion",
+      "text": "Nutrition values are calculated from the selected product's reported values per 100 g. The amount you eat changes the total."
+    },
+    {
+      "title": "Treat database values as estimates",
+      "text": "Product information may be missing or user-submitted. Check the package label when accuracy matters."
+    },
+    {
+      "title": "Build variety into meals",
+      "text": "A useful eating pattern includes a variety of foods. One food or nutrient does not determine overall diet quality."
+    }
+  ]
+}
